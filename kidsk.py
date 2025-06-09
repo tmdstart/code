@@ -1,5 +1,7 @@
 import time
 
+membership_dict = {}
+
 menu_list = [
     {'name': '바나나', 'price': 4000},
     {'name': '딸기', 'price': 5000},
@@ -116,10 +118,55 @@ def pay_screen(total_price, num_order):
 
 def end_screen_delay():
     print("초기화면으로 돌아갑니다.")
-    for i in range(5, 0, -1):
+    for i in range(5, 0, -1): 
         print(f"{i} ", end='\r', flush=True)
         time.sleep(1)
     print(" ", end='\r')
+
+def pay_screen(total_price, num_order):
+    phone = None
+    used_point = 0
+
+    use_point = input("포인트를 사용하시겠습니까? (y/n): ").lower().strip()
+    if use_point == 'y':
+        phone = input("전화번호를 입력해주세요 (- 없이): ").strip()
+        if phone in membership_dict:
+            available = membership_dict[phone]
+            print(f"현재 {available}포인트가 있습니다.")
+            while True:
+                try:
+                    used_point = int(input("사용할 포인트를 입력해주세요: "))
+                    if used_point > available:
+                        print("포인트가 부족합니다.")
+                    elif used_point > total_price:
+                        print("결제 금액보다 많은 포인트는 사용할 수 없습니다.")
+                    else:
+                        membership_dict[phone] -= used_point
+                        total_price -= used_point
+                        print(f"{used_point}포인트를 사용하여 {total_price}원을 결제합니다.")
+                        break
+                except ValueError:
+                    print("숫자를 입력해주세요.")
+        else:
+            print("해당 번호로 적립된 포인트가 없습니다.")
+
+    print(f"{total_price:,}원 결제하겠습니다. 카드를 삽입해주세요.")
+    print("결제가 완료되었습니다.")
+
+    # 포인트를 사용하지 않았을 때만 적립
+    if used_point == 0:
+        mem = input("포인트 적립 하시겠습니까? (y/n): ").lower().strip()
+        if mem == 'y':
+            if not phone:
+                phone = input("전화번호를 입력해주세요 (- 없이): ").strip()
+            point = int(total_price * 0.1)
+            membership_dict[phone] = membership_dict.get(phone, 0) + point
+            print(f"{phone} 번호에 {point}포인트가 적립되어 총 {membership_dict[phone]}포인트가 있습니다.")
+    else:
+        print("포인트를 사용하셨기 때문에 이번 결제는 적립되지 않습니다.")
+
+    print(f"주문번호는 {num_order}번 입니다.")
+
 
 def main():
     num_order = 1
