@@ -74,7 +74,7 @@ def select_pro():
     print("메뉴를 삭제하려면 d")
     print("메뉴를 추가하려면 a")
     print("메뉴를 취소하려면 c")
-    return input("알파벳을 입력해주세요 : ")
+    return input("알파벳을 입력해주세요 : ").strip().lower()
 
 def pay_deci():
     return input("주문이 확정되었습니다. 결제를 하시겠습니까? (y/n): ")
