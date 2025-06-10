@@ -62,7 +62,7 @@ def add_menu(cart, total_price):
     remaining = 16 - current_total  # 최대 15개까지 가능
 
     if remaining <= 0:
-        print("장바구니에는 최대 15개까지만 담을 수 있습니다.")
+        print("장바구니에는 최대 16개까지만 담을 수 있습니다.")
         return total_price
 
     print("\n메뉴 목록:")
@@ -78,8 +78,6 @@ def add_menu(cart, total_price):
             for item in cart:
                 if item['name'] == selected_item['name']:
                     item['quantity'] += qty
-                    if item['quantity'] > 15:
-                        item['quantity'] = 15
                     break
             else:
                 # 새로운 항목 추가
@@ -89,6 +87,9 @@ def add_menu(cart, total_price):
 
 # 장바구니에서 메뉴를 삭제하는 함수
 def del_menu(cart, total_price):
+    if not cart:
+        print("장바구니가 비어 있어 삭제할 수 없습니다.")
+        return total_price
     display_cart(cart, total_price)
     idx = get_valid_number_input("삭제할 메뉴의 번호를 골라주세요 : ",1,len(cart))
     if idx:
@@ -98,6 +99,8 @@ def del_menu(cart, total_price):
         del_qty = get_valid_number_input("몇 개를 삭제하시겠습니까? : ", 1, item['quantity'])
         if del_qty:
             item['quantity'] -= del_qty
+            if item['quantity'] == 0:
+                cart.pop(idx)
             total_price -= item['price'] * del_qty
             print(f"'{item['name']}' {del_qty}개가 삭제되었습니다.")
     return total_price
@@ -145,12 +148,12 @@ def pay_screen(total_price, num_order):
     else:
         print("포인트를 사용하셨기 때문에 이번 결제는 적립되지 않습니다.")
         
-        print(f"주문번호는 {num_order}번 입니다.")
+    print(f"주문번호는 {num_order}번 입니다.")
 
 # 포인트를 적립할 때 사용하는 함수
 def membership_point_save(total_price, phone=None):
     while not phone or not is_valid_phone(phone):
-        phone = input("전화번호를 입력해주세요 (- 없이): ").strip()
+        phone = input("전화번호를 입력해주세요 (- 없이): ").replace(" ", "")
         if not is_valid_phone(phone):
             print("올바른 형식의 전화번호(예: 01012345678)를 입력해주세요.")
     points = int(total_price * 0.1)
@@ -165,7 +168,7 @@ def membership_point_save(total_price, phone=None):
 # 포인트 사용 시 사용하는 함수
 def use_membership_point(total_price):
     while True:
-        phone = input("전화번호를 입력해주세요 (- 없이): ").strip()
+        phone = input("전화번호를 입력해주세요 (- 없이): ").replace(" ", "")
         if not is_valid_phone(phone):
             print("올바른 형식의 전화번호(예: 01012345678)를 입력해주세요.")
             continue
@@ -183,6 +186,8 @@ def use_membership_point(total_price):
                 print("포인트가 부족합니다.")
             elif used_point > total_price:
                 print("결제 금액보다 많은 포인트는 사용할 수 없습니다.")
+            elif used_point < 0:
+                print("음수 포인트를 사용할 수 없습니다.")
             else:
                 membership_dict[phone] -= used_point
                 total_price -= used_point
